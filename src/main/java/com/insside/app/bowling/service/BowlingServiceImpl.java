@@ -25,12 +25,11 @@ public class BowlingServiceImpl implements IBowlingService {
 		Integer round = 1;
 		Integer firstLaunchForwardScore;
 		Integer secondLaunchForwardScore;
-		Boolean isFoul = false;
 		List<Frame> frames = new ArrayList<Frame>(); 
 		for (int i = 0; i < scores.size(); i++) {
-			currentScore = getScore(i,scores, isFoul);
-			firstLaunchForwardScore = getScore(i + 1,scores,isFoul);
-			secondLaunchForwardScore = getScore(i + 2, scores,isFoul);
+			currentScore = getScore(i,scores);
+			firstLaunchForwardScore = getScore(i + 1,scores);
+			secondLaunchForwardScore = getScore(i + 2, scores);
 			Frame frame = new Frame();
 			frame.setFrame(round);
 			
@@ -76,9 +75,9 @@ public class BowlingServiceImpl implements IBowlingService {
 		return frames;
 	};
 
-	private Integer getScore(Integer i, List<Launch> scores, Boolean isFoul) {
+	private Integer getScore(Integer i, List<Launch> scores) {
 		if (F.equals(scores.get(i).getScore())) {
-			return -1;
+			return FOUL;
 		}
 		return Integer.valueOf(scores.get(i).getScore());
 	}
