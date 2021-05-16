@@ -12,6 +12,8 @@ public class Frame {
 	
 	private Integer score;
 
+	private String name;
+	
 	public Frame() {
 		
 	}
@@ -61,6 +63,14 @@ public class Frame {
 
 	public final void setThirdLaunch(String thirdLaunch) {
 		this.thirdLaunch = thirdLaunch;
+	}
+
+	public final String getName() {
+		return name;
+	}
+
+	public final void setName(String name) {
+		this.name = name;
 	}
 
 	@Override

@@ -7,10 +7,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.insside.app.bowling.util.Frame;
@@ -18,6 +20,8 @@ import com.insside.app.bowling.util.Launch;
 
 @Service
 public class FileServiceImpl implements IFileService{
+	
+	static Logger logger = Logger.getLogger(FileServiceImpl.class);
 	
 	private static String FOUL = "F";
 
@@ -36,8 +40,8 @@ public class FileServiceImpl implements IFileService{
 			while ((line = br.readLine()) != null) {
 				String[] parts = line.split(" ");
 				Launch launch = new Launch();
-				launch.setName(parts[0]);
-				if (this.validateFormat(parts[1])) {
+				if (this.validateFormat(parts)) {
+					launch.setName(parts[0]);
 					launch.setScore(parts[1]);
 					plays.add(launch);
 				}
@@ -63,78 +67,89 @@ public class FileServiceImpl implements IFileService{
 	}
 	
 	
-	public void exportResults(List<Frame> player1,String namePlayer1, List<Frame> player2, String namePlayer2) {
+	public void exportResults(List<List<Frame>> lists, String url) {
         
 		FileWriter fw=null;
 		BufferedWriter bw=null;
 		try
         {
-        	String ruta = "C:/Users/Jesús personal/Desktop/insside/resultado.txt";
-  
-            File file = new File(ruta);
+			
+			Path path = Paths.get(url);
+			String directory = path.getParent().toString() + File.separator +"resultado.txt";
+			
+			
+            File file = new File(directory);
+            
+          
             if (!file.exists()) {
                 file.createNewFile();
             }
         	
             fw = new FileWriter(file);
             bw = new BufferedWriter(fw);
-          
-            List<Integer> framesPlayer1 = player1.stream().map(a -> a.getFrame()).collect(Collectors.toList());
             
             bw.write("Frame");
-            for (Integer frame : framesPlayer1) { 
-            	bw.write("\t");
-            	bw.write("\t");
-            	bw.write(frame.toString());
-            }
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("1");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("2");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("3");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("4");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("5");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("6");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("7");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("8");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("9");
+        	bw.write("\t");
+        	bw.write("\t");
+        	bw.write("10");
     
-            bw.write("\n");
-            bw.write(namePlayer2);
-            
-            bw.write("\n");
-            bw.write("Pinfalls");
-            bw.write("\t");
-            for (Frame frame : player2) {
-            	bw.write(frame.getFirstLaunch());
-            	bw.write("\t");
-            	bw.write(frame.getSecondLaunch());
-            	bw.write("\t");
-            	if (frame.getFrame() == 10) {
-            		bw.write(frame.getThirdLaunch());
-            	}
-            }
            
-            bw.write("\n");
-            bw.write("Score");
-            for (Frame frame : player2) {
-            	bw.write("\t");
-            	bw.write("\t");
-            	bw.write(frame.getScore().toString());
+            for (List<Frame> listPlayer : lists) {
+            	bw.write("\n");
+	            bw.write(listPlayer.get(0).getName());
+	            
+	            bw.write("\n");
+	            bw.write("Pinfalls");
+	            bw.write("\t");
+	            for (Frame frame : listPlayer) {
+	            	bw.write(frame.getFirstLaunch());
+	            	bw.write("\t");
+	            	bw.write(frame.getSecondLaunch());
+	            	bw.write("\t");
+	            	if (frame.getFrame() == 10 && frame.getThirdLaunch() != null) {
+	            		bw.write(frame.getThirdLaunch());
+	            	}
+	            }
+	           
+	            bw.write("\n");
+	            bw.write("Score");
+	            for (Frame frame : listPlayer) {
+	            	bw.write("\t");
+	            	bw.write("\t");
+	            	bw.write(frame.getScore().toString());
+	            }
+	            
             }
-            
-            bw.write("\n");
-            bw.write(namePlayer1);  
-            
-            bw.write("\n");
-            bw.write("Pinfalls");
-            bw.write("\t");
-            for (Frame frame : player1) {
-            	bw.write(frame.getFirstLaunch());
-            	bw.write("\t");
-            	bw.write(frame.getSecondLaunch());
-            	bw.write("\t");
-            	if (frame.getFrame() == 10) {
-            		bw.write(frame.getThirdLaunch());
-            	}
-            }
-            
-            bw.write("\n");
-            bw.write("Score");
-            for (Frame frame : player1) {
-            	bw.write("\t");
-            	bw.write("\t");
-            	bw.write(frame.getScore().toString());
-            }
+            logger.info("********************************************************************************");
+            logger.info("Archivo generado en ruta: " + directory);
+            logger.info("********************************************************************************");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -148,13 +163,23 @@ public class FileServiceImpl implements IFileService{
     
 	}
 	
-	private boolean validateFormat(String number) throws NumberFormatException {
-		if (FOUL.equals(number))
-			return true;
-		Integer aux = Integer.valueOf(number);
+	private boolean validateFormat(String[] parts) throws IllegalArgumentException {
+
+		try {
+			if (parts.length < 2) {
+				throw new IllegalArgumentException();
+			}
+			if (FOUL.equals(parts[1]))
+				return true;
+			Integer aux = Integer.valueOf(parts[1]);
 		if (aux <= 10  && aux >= 0)
 			return true;
-		throw new NumberFormatException("For input string: " + aux);
+		throw new IllegalArgumentException();
+		} catch (IllegalArgumentException e) {
+			logger.error("********************************************************************************");
+	        logger.error("La puntuacion debe ser un numero del 1 al 10 o F");
+	        logger.error("********************************************************************************");
+	        throw new IllegalArgumentException();
+		}
 	}
-
 }

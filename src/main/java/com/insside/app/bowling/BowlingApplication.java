@@ -1,7 +1,7 @@
 package com.insside.app.bowling;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -44,28 +44,22 @@ public class BowlingApplication {
 		
 		List<String> names = plays.stream().map(a -> a.getName()).distinct().collect(Collectors.toList());
 		
-		if (names.size() != 2) {
-			logger.error("Debe haber dos jugadores");
+		if (names.size() < 2) {
+			logger.info("********************************************************************************");
+            logger.info("La cantidad de jugadores debe ser mayor o igual a 2");
+            logger.info("********************************************************************************");
+			throw new IllegalArgumentException();
 		}
-		
-		Map<Boolean, List<Launch>> lists = plays.stream().collect(Collectors.partitioningBy(launch -> launch.getName().equals(names.get(0))));
-		
-		List<Launch> player1 = lists.get(false);
-		List<Launch> player2 = lists.get(true);
-		
-		List<Frame> framesPlayer1 = bowlingServiceImpl.getFrames(player1);
-		
-		List<Frame> framesPlayer2 = bowlingServiceImpl.getFrames(player2);
-		
-		fileServiceImpl.exportResults(framesPlayer1,player1.get(0).getName(), framesPlayer2, player2.get(0).getName());
-		
+		List<List<Frame>> lists = new ArrayList<>();;
+		for (String name : names) {
+			List<Launch> list = plays.stream().filter(launch -> launch.getName().equals(name)).collect(Collectors.toList());
+			List<Frame> listFrame = bowlingServiceImpl.getFrames(list);
+			lists.add(listFrame);
+		}
 	
+		fileServiceImpl.exportResults(lists,args[0]);
+		
+		
 	}
-
-	
-	
-
-		
-	
 
 }

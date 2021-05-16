@@ -7,7 +7,7 @@ import com.insside.app.bowling.util.Launch;
 
 public interface IFileService {
 
-	public List<Launch> getPlays(String url);
+	public List<Launch> getPlays(String url);	
 	
-	public void exportResults(List<Frame> player1,String namePlayer1, List<Frame> player2, String namePlayer2);
+	public void exportResults(List<List<Frame>> lists, String url);
 }
